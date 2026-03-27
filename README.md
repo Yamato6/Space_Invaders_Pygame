@@ -191,22 +191,8 @@ AnimatedEffect
 \- PlayerDeath
 ```
 
-## 9. Hallazgos del analisis
-Hallazgos relevantes detectados al revisar todos los .py:
-- La documentacion previa estaba desfasada (no incluia effects.py ni proyectiles enemigos, vidas e invencibilidad).
-- En _restart de game.py se asignan banderas _sprite_loaded para Enemy y Projectile, pero esas clases no usan ese mecanismo actualmente.
-  - No rompe el juego porque Python permite crear atributos de clase dinamicamente.
-  - Es codigo redundante y puede eliminarse si se quiere limpiar.
-
 ## 10. Como ejecutar
 
 ```bash
 python main.py
 ```
-
-## 11. Ideas de mejora tecnica
-- Ajustar dificultad progresiva (velocidad enemiga y shoot chance por oleada).
-- Agregar oleadas (nuevo spawn tras victoria parcial).
-- Incorporar sonido (disparo, impacto, game over).
-- Separar UI/HUD en modulo dedicado.
-- Agregar pruebas basicas para logica pura (colisiones y transiciones de estado).
