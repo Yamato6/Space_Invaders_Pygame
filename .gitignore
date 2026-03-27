@@ -1,0 +1,6 @@
+assets
+_pycache_
+__pycache__
+*.pyc
+*.pyo
+*.pyd

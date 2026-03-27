@@ -1,0 +1,59 @@
+# settings.py — Constantes globales del juego
+import os
+
+# --- Pantalla ---
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+FPS = 60
+TITLE = "Space Invaders"
+
+# --- Colores ---
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+BLUE = (0, 100, 255)
+YELLOW = (255, 255, 0)
+
+# --- Assets ---
+ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
+
+# --- Jugador ---
+PLAYER_WIDTH = 50
+PLAYER_HEIGHT = 40
+PLAYER_SPEED = 5.0
+PLAYER_START_Y = SCREEN_HEIGHT - 60
+PLAYER_COLOR = GREEN
+SHOOT_COOLDOWN = 15
+
+# --- Enemigos ---
+ENEMY_WIDTH = 40
+ENEMY_HEIGHT = 30
+ENEMY_SPEED = 2.0
+ENEMY_DROP = 20.0
+ENEMY_COLOR = RED
+ENEMY_ROWS = 4
+ENEMY_COLS = 8
+ENEMY_MARGIN_LEFT = 80
+ENEMY_MARGIN_RIGHT = 80
+ENEMY_SPACING_Y = 50
+ENEMY_START_Y = 60
+ENEMY_LOSE_Y = SCREEN_HEIGHT - 120
+
+# --- Proyectiles ---
+PROJECTILE_WIDTH = 8
+PROJECTILE_HEIGHT = 16
+PROJECTILE_SPEED = 7.0
+PROJECTILE_COLOR = YELLOW
+
+# --- Jugador vidas ---
+PLAYER_LIVES = 5
+PLAYER_INVINCIBLE_TIME = 2000  # ms de invencibilidad tras recibir daño
+LIVE_ICON_SIZE = (24, 24)
+LIVE_ICON_MARGIN = 5
+
+# --- Proyectiles enemigos ---
+ENEMY_PROJECTILE_WIDTH = 12
+ENEMY_PROJECTILE_HEIGHT = 18
+ENEMY_PROJECTILE_SPEED = 3.0       # era 4.0
+ENEMY_SHOOT_CHANCE = 0.0008        # era 0.002
