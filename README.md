@@ -1,18 +1,20 @@
-# Space Invaders - Documentacion Tecnica Actualizada
+# Space Invaders - Updated Technical Documentation
 
-## 1. Resumen del proyecto
-Juego tipo Space Invaders implementado en Python con Pygame y NumPy.
-El proyecto ya incluye:
-- Menu inicial.
-- Loop principal con estados del juego.
-- Jugador con movimiento horizontal y cooldown de disparo.
-- Enemigos en formacion con movimiento grupal y descenso al tocar bordes.
-- Proyectiles de jugador y de enemigos.
-- Sistema de vidas e invencibilidad temporal.
-- Efectos visuales animados (explosion, muzzle flash, impacto al jugador).
-- HUD con puntaje y vidas.
+<!-- OOP note: inheritance is centered in entities/effects subclasses, while Game encapsulates runtime state and orchestration. -->
 
-## 2. Estructura real del workspace
+## 1. Project Overview
+A Space Invaders style game implemented in Python using Pygame and NumPy.
+The project currently includes:
+- Main menu.
+- Main loop with game states.
+- Player with horizontal movement and shooting cooldown.
+- Enemies in formation with group movement and descent when hitting borders.
+- Player and enemy projectiles.
+- Lives system with temporary invincibility.
+- Animated visual effects (explosion, muzzle flash, player hit effect).
+- HUD with score and lives.
+
+## 2. Actual Workspace Structure
 
 ```text
 Proyecto Game/
@@ -25,137 +27,137 @@ Proyecto Game/
 |- assets/
 ```
 
-## 3. Dependencias
+## 3. Dependencies
 - Python 3.x
 - pygame
 - numpy
 
-Instalacion recomendada:
+Recommended installation:
 
 ```bash
 pip install pygame numpy
 ```
 
-## 4. Archivo por archivo
+## 4. File by File
 
 ### 4.1 settings.py
-Centraliza constantes globales:
-- Pantalla: ancho, alto, FPS, titulo.
-- Colores base.
-- Ruta de assets: ASSETS_DIR.
-- Parametros de jugador: tamano, velocidad, cooldown.
-- Parametros de enemigos: tamano, velocidad horizontal, bajada, formacion.
-- Parametros de proyectiles de jugador y enemigos.
-- Sistema de vidas e invencibilidad.
+Centralizes global constants:
+- Screen: width, height, FPS, title.
+- Base colors.
+- Assets path: ASSETS_DIR.
+- Player parameters: size, speed, cooldown.
+- Enemy parameters: size, horizontal speed, drop amount, formation.
+- Player and enemy projectile parameters.
+- Lives and invincibility system.
 
-Constantes importantes para gameplay:
-- ENEMY_SHOOT_CHANCE define la probabilidad por frame de disparo enemigo.
-- PLAYER_INVINCIBLE_TIME evita dano inmediato repetido tras un impacto.
-- ENEMY_LOSE_Y define la linea de derrota por avance enemigo.
+Important gameplay constants:
+- ENEMY_SHOOT_CHANCE defines per-frame enemy shooting probability.
+- PLAYER_INVINCIBLE_TIME prevents immediate repeated damage after a hit.
+- ENEMY_LOSE_Y defines the defeat line when enemies advance.
 
 ### 4.2 entities.py
-Define las entidades y su comportamiento base.
+Defines entities and their base behavior.
 
-Clases:
+Classes:
 - Entity:
-  - Base comun con posicion, velocidad, dimensiones, estado activo.
-  - get_rect para colisiones con pygame.Rect.
-  - update con movimiento vectorial.
+  - Common base with position, velocity, dimensions, active state.
+  - get_rect for pygame.Rect based collisions.
+  - update with vector movement.
 - Player(Entity):
-  - Input izquierda/derecha (flechas y A/D).
-  - shoot con cooldown por frames.
-  - Limite horizontal dentro de pantalla.
+  - Left/right input (arrow keys and A/D).
+  - shoot with frame cooldown.
+  - Horizontal clamp inside screen bounds.
 - Enemy(Entity):
-  - Enemigo individual; el movimiento grupal lo controla Game.
+  - Single enemy; group movement is controlled by Game.
 - Projectile(Entity):
-  - Proyectil del jugador que viaja hacia arriba.
-  - Se desactiva al salir de pantalla.
+  - Player projectile moving upward.
+  - Deactivates when leaving the screen.
 - EnemyProjectile(Entity):
-  - Proyectil enemigo que viaja hacia abajo.
-  - Carga sprite compartido una vez.
+  - Enemy projectile moving downward.
+  - Loads a shared sprite once.
 
-Detalles de implementacion:
-- Se usa una funcion load_sprite para cargar y escalar imagenes desde assets.
-- Si un sprite no existe, se usa render fallback con rectangulos.
+Implementation details:
+- Uses a load_sprite function to load and scale images from assets.
+- If a sprite does not exist, it falls back to rectangle rendering.
 
 ### 4.3 effects.py
-Sistema de efectos animados por frames.
+Frame-based animated effects system.
 
-Clases:
+Classes:
 - AnimatedEffect:
-  - Clase base de efectos.
-  - Maneja tiempo, frame actual, activacion y dibujo.
-  - Incluye cache de frames para no recargar recursos.
+  - Base effect class.
+  - Handles timing, current frame, activation, and drawing.
+  - Includes frame caching to avoid reloading resources.
 - Explosion:
-  - Efecto al destruir enemigos.
-  - Busca sprites Explosion1..Explosion4 (en orden inverso de carga).
+  - Effect when enemies are destroyed.
+  - Looks for Explosion1..Explosion4 sprites (reverse load order).
 - MuzzleFlash:
-  - Destello al disparar.
-  - Generado proceduralmente con circulos alpha (no depende de archivos).
+  - Flash when shooting.
+  - Procedurally generated with alpha circles (no file dependency).
 - PlayerDeath:
-  - Efecto visual al recibir dano.
-  - Usa player_death.png si existe; si no, fallback procedural.
+  - Visual effect when taking damage.
+  - Uses player_death.png if present, otherwise procedural fallback.
 
 ### 4.4 game.py
-Controla el ciclo completo del juego.
+Controls the full game cycle.
 
-Enum de estados:
+State enum:
 - MENU
 - RUNNING
 - WON
 - LOST
 
-Responsabilidades principales:
-- Inicializar Pygame, pantalla y clock.
-- Crear jugador, listas de enemigos/proyectiles/efectos.
-- Spawnear grilla de enemigos con NumPy.
-- Procesar eventos de teclado y cierre de ventana.
-- Actualizar logica por frame.
-- Resolver colisiones.
-- Dibujar escena segun estado.
-- Reiniciar partida.
+Main responsibilities:
+- Initialize Pygame, screen, and clock.
+- Create player, enemies, projectiles, and effects lists.
+- Spawn enemy grid using NumPy.
+- Process keyboard and window-close events.
+- Update frame logic.
+- Resolve collisions.
+- Draw scene according to game state.
+- Restart game.
 
-Flujo de update en estado RUNNING:
-1. Gestion de invencibilidad temporal.
-2. Lectura de input y movimiento del jugador.
-3. Disparo del jugador y generacion de MuzzleFlash.
-4. Update y limpieza de proyectiles del jugador.
-5. Disparo aleatorio de enemigos.
-6. Update y limpieza de proyectiles enemigos.
-7. Movimiento grupal de enemigos.
-8. Colisiones:
-   - Proyectil jugador vs enemigo -> +10 puntos + Explosion.
-   - Proyectil enemigo vs jugador -> perdida de vida + PlayerDeath + invencibilidad.
-9. Update y limpieza de efectos.
-10. Verificacion de victoria/derrota.
+Update flow in RUNNING state:
+1. Handle temporary invincibility.
+2. Read input and move player.
+3. Player shooting and MuzzleFlash creation.
+4. Update and clean player projectiles.
+5. Random enemy shooting.
+6. Update and clean enemy projectiles.
+7. Group enemy movement.
+8. Collisions:
+   - Player projectile vs enemy -> +10 score + Explosion.
+   - Enemy projectile vs player -> life loss + PlayerDeath + invincibility.
+9. Update and clean effects.
+10. Check win/lose conditions.
 
-Condiciones de fin:
-- Victoria: no quedan enemigos activos.
-- Derrota:
-  - Vidas del jugador llegan a 0.
-  - O enemigos cruzan ENEMY_LOSE_Y.
+End conditions:
+- Victory: no active enemies remain.
+- Defeat:
+  - Player lives reach 0.
+  - Or enemies cross ENEMY_LOSE_Y.
 
-Render:
-- Fondo con imagen background.png si existe; si no, color negro.
-- Jugador con parpadeo durante invencibilidad.
-- HUD con puntaje y vidas.
-  - Si existe live.png, se dibujan iconos.
-  - Si no, se dibuja texto "Vidas: N".
+Rendering:
+- Background from background.png if present; otherwise black fill.
+- Player blinks during invincibility.
+- HUD with score and lives.
+  - If live.png exists, life icons are drawn.
+  - Otherwise it draws "Lives: N" text.
 
 ### 4.5 main.py
-Punto de entrada minimo:
-- Crea Game().
-- Ejecuta run().
+Minimal entry point:
+- Creates Game().
+- Executes run().
 
-## 5. Controles
-- Flecha izquierda o A: mover a la izquierda.
-- Flecha derecha o D: mover a la derecha.
-- Espacio: disparar.
-- Enter: iniciar partida desde menu.
-- R: reiniciar desde estado WON o LOST.
+## 5. Controls
+- Left arrow or A: move left.
+- Right arrow or D: move right.
+- Space: shoot.
+- Enter: start game from menu.
+- R: restart from WON or LOST state.
 
-## 6. Assets esperados
-En la carpeta assets pueden existir (opcionales):
+## 6. Expected Assets
+Optional files in the assets folder:
 - player.png
 - enemy.png
 - projectile.png
@@ -165,18 +167,18 @@ En la carpeta assets pueden existir (opcionales):
 - player_death.png
 - Explosion1.png, Explosion2.png, Explosion3.png, Explosion4.png
 
-Notas:
-- El juego funciona aunque falten varios assets gracias a fallbacks visuales.
-- El nombre enemy_proyectile.png esta escrito asi en el codigo (con "y").
+Notes:
+- The game works even if several assets are missing thanks to visual fallbacks.
+- The filename enemy_proyectile.png is intentionally written that way in code.
 
-## 7. Uso de NumPy en el proyecto
-NumPy se usa para:
-- Representar posicion y velocidad como vectores.
-- Clamping de posicion horizontal del jugador.
-- Generacion de grilla de enemigos con linspace y arange.
-- Generacion de aleatoriedad para disparos enemigos con random.
+## 7. NumPy Usage in the Project
+NumPy is used to:
+- Represent position and velocity as vectors.
+- Clamp player horizontal position.
+- Generate enemy grid with linspace and arange.
+- Generate random values for enemy shooting.
 
-## 8. Diagrama simplificado de clases
+## 8. Simplified Class Diagram
 
 ```text
 Entity
@@ -191,22 +193,22 @@ AnimatedEffect
 \- PlayerDeath
 ```
 
-## 9. Hallazgos del analisis
-Hallazgos relevantes detectados al revisar todos los .py:
-- La documentacion previa estaba desfasada (no incluia effects.py ni proyectiles enemigos, vidas e invencibilidad).
-- En _restart de game.py se asignan banderas _sprite_loaded para Enemy y Projectile, pero esas clases no usan ese mecanismo actualmente.
-  - No rompe el juego porque Python permite crear atributos de clase dinamicamente.
-  - Es codigo redundante y puede eliminarse si se quiere limpiar.
+## 9. Analysis Findings
+Relevant findings after reviewing all .py files:
+- The previous documentation was outdated (it did not include effects.py, enemy projectiles, lives, and invincibility).
+- In _restart of game.py, class flags _sprite_loaded are assigned for Enemy and Projectile, but those classes do not currently use that mechanism.
+  - It does not break the game because Python allows dynamic class attributes.
+  - It is redundant code and can be removed for cleanup.
 
-## 10. Como ejecutar
+## 10. How to Run
 
 ```bash
 python main.py
 ```
 
-## 11. Ideas de mejora tecnica
-- Ajustar dificultad progresiva (velocidad enemiga y shoot chance por oleada).
-- Agregar oleadas (nuevo spawn tras victoria parcial).
-- Incorporar sonido (disparo, impacto, game over).
-- Separar UI/HUD en modulo dedicado.
-- Agregar pruebas basicas para logica pura (colisiones y transiciones de estado).
+## 11. Technical Improvement Ideas
+- Tune progressive difficulty (enemy speed and shoot chance per wave).
+- Add waves (new spawn after partial victory).
+- Add sound (shoot, hit, game over).
+- Split UI/HUD into a dedicated module.
+- Add basic tests for pure logic (collisions and state transitions).

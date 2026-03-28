@@ -1,6 +1,6 @@
-# entities.py — Entity, Player, Enemy, Projectile (con sprites)
+# entities.py - Entity, Player, Enemy, Projectile (with sprites)
 
-# Al inicio de entities.py, asegúrate de tener:
+# Imports and settings
 import os
 import pygame
 import numpy as np
@@ -15,7 +15,7 @@ from settings import (
 
 
 def load_sprite(filename, width, height):
-    """Carga un sprite desde assets/. Retorna None si no existe."""
+    """Load a sprite from assets/. Return None if it does not exist."""
     path = os.path.join(ASSETS_DIR, filename)
     if os.path.exists(path):
         img = pygame.image.load(path).convert_alpha()
@@ -23,8 +23,10 @@ def load_sprite(filename, width, height):
     return None
 
 
+# Encapsulation: Entity centralizes shared internal state (_position, _velocity,
+# _width, _height, _active) and exposes controlled access via properties/methods.
 class Entity:
-    """Clase base para todas las entidades del juego."""
+    """Base class for all game entities."""
 
     def __init__(self, position, width, height):
         self._position = np.array(position, dtype=float)
@@ -48,7 +50,7 @@ class Entity:
         return self._active
 
     def get_rect(self):
-        """Retorna un pygame.Rect para detección de colisiones."""
+        """Return a pygame.Rect for collision detection."""
         return pygame.Rect(
             int(self._position[0]),
             int(self._position[1]),
@@ -57,20 +59,22 @@ class Entity:
         )
 
     def update(self):
-        """Movimiento vectorial: posición += velocidad."""
+        """Vector movement: position += velocity."""
         self._position = self._position + self._velocity
 
     def draw(self, surface):
-        """Dibuja sprite si existe, si no dibuja rectángulo de respaldo."""
+        """Draw sprite if available, otherwise draw fallback rectangle."""
         pass
 
     def deactivate(self):
-        """Marca la entidad como inactiva."""
+        """Mark entity as inactive."""
         self._active = False
 
 
+# Inheritance: Player extends Entity and specializes movement/shooting behavior.
+# Encapsulation: cooldown and movement state are managed through internal attributes.
 class Player(Entity):
-    """Nave del jugador. Se mueve horizontalmente y dispara."""
+    """Player ship. Moves horizontally and shoots."""
 
     def __init__(self, position):
         super().__init__(position, PLAYER_WIDTH, PLAYER_HEIGHT)
@@ -79,7 +83,7 @@ class Player(Entity):
         self._sprite = load_sprite("player.png", PLAYER_WIDTH, PLAYER_HEIGHT)
 
     def handle_input(self, keys):
-        """Lee teclas y ajusta velocidad horizontal."""
+        """Read key input and update horizontal velocity."""
         self._velocity = np.array([0.0, 0.0])
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self._velocity[0] = -PLAYER_SPEED
@@ -87,7 +91,7 @@ class Player(Entity):
             self._velocity[0] = PLAYER_SPEED
 
     def shoot(self):
-        """Crea un proyectil si el cooldown lo permite."""
+        """Create a projectile if cooldown allows it."""
         if self._cooldown_timer <= 0:
             self._cooldown_timer = self._shoot_cooldown
             proj_pos = np.array([
@@ -98,7 +102,7 @@ class Player(Entity):
         return None
 
     def update(self):
-        """Mueve al jugador y aplica límites de pantalla."""
+        """Move player and apply screen boundaries."""
         super().update()
         self._position[0] = np.clip(
             self._position[0], 0, SCREEN_WIDTH - self._width
@@ -107,30 +111,32 @@ class Player(Entity):
             self._cooldown_timer -= 1
 
     def draw(self, surface):
-        """Dibuja sprite o rectángulo de respaldo."""
+        """Draw sprite or fallback rectangle."""
         if self._sprite:
             surface.blit(self._sprite, self._position)
         else:
             pygame.draw.rect(surface, PLAYER_COLOR, self.get_rect())
 
 
+# Inheritance: Enemy extends Entity and reuses base position/collision behavior.
 class Enemy(Entity):
-    """Enemigo individual. El movimiento grupal se controla desde Game."""
+    """Single enemy. Group movement is controlled by Game."""
 
     def __init__(self, position):
         super().__init__(position, ENEMY_WIDTH, ENEMY_HEIGHT)
         self._sprite = load_sprite("enemy.png", ENEMY_WIDTH, ENEMY_HEIGHT)
 
     def draw(self, surface):
-        """Dibuja sprite o rectángulo de respaldo."""
+        """Draw sprite or fallback rectangle."""
         if self._sprite:
             surface.blit(self._sprite, self._position)
         else:
             pygame.draw.rect(surface, ENEMY_COLOR, self.get_rect())
 
 
+# Inheritance: Projectile extends Entity and customizes upward motion/lifecycle.
 class Projectile(Entity):
-    """Proyectil del jugador. Se mueve hacia arriba."""
+    """Player projectile. Moves upward."""
 
     def __init__(self, position):
         super().__init__(position, PROJECTILE_WIDTH, PROJECTILE_HEIGHT)
@@ -138,20 +144,23 @@ class Projectile(Entity):
         self._sprite = load_sprite("projectile.png", PROJECTILE_WIDTH, PROJECTILE_HEIGHT)
 
     def update(self):
-        """Mueve el proyectil y lo desactiva si sale de pantalla."""
+        """Move projectile and deactivate it when it leaves the screen."""
         super().update()
         if self._position[1] + self._height < 0:
             self.deactivate()
 
     def draw(self, surface):
-        """Dibuja sprite o rectángulo de respaldo."""
+        """Draw sprite or fallback rectangle."""
         if self._sprite:
             surface.blit(self._sprite, self._position)
         else:
             pygame.draw.rect(surface, PROJECTILE_COLOR, self.get_rect())
 
+
+# Inheritance: EnemyProjectile extends Entity with enemy-specific downward movement.
+# Encapsulation: shared sprite loading is encapsulated with class-level cache fields.
 class EnemyProjectile(Entity):
-    """Proyectil disparado por un enemigo (va hacia abajo)."""
+    """Projectile fired by an enemy (moves downward)."""
 
     _shared_sprite = None
     _sprite_loaded = False

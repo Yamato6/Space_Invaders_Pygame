@@ -1,4 +1,4 @@
-# effects.py — Sistema de efectos visuales animados
+# effects.py - Animated visual effects system
 
 import os
 import pygame
@@ -6,8 +6,10 @@ import numpy as np
 from settings import ASSETS_DIR
 
 
+# Encapsulation: AnimatedEffect owns the internal animation lifecycle
+# (_current_frame, _start_time, _active) and exposes it through update/draw.
 class AnimatedEffect:
-    """Efecto visual animado con múltiples frames."""
+    """Animated visual effect with multiple frames."""
 
     _frame_cache = {}
 
@@ -71,8 +73,9 @@ class AnimatedEffect:
         surface.blit(frame, (x, y))
 
 
+# Inheritance: Explosion extends AnimatedEffect and customizes explosion frame loading.
 class Explosion(AnimatedEffect):
-    """Explosión al destruir un enemigo."""
+    """Explosion effect when destroying an enemy."""
 
     def __init__(self, position: np.ndarray):
         super().__init__(
@@ -110,8 +113,9 @@ class Explosion(AnimatedEffect):
         return frames
 
 
+# Inheritance: MuzzleFlash extends AnimatedEffect with procedural flash frames.
 class MuzzleFlash(AnimatedEffect):
-    """Destello al disparar (generado proceduralmente)."""
+    """Muzzle flash when shooting (procedurally generated)."""
 
     _flash_cache = None
 
@@ -149,8 +153,11 @@ class MuzzleFlash(AnimatedEffect):
         cls._flash_cache = frames
         return frames
 
+
+    # Inheritance: PlayerDeath extends AnimatedEffect with a damage/death animation.
+    # Encapsulation: death-frame cache is hidden behind _death_cache and class loaders.
 class PlayerDeath(AnimatedEffect):
-    """Efecto al recibir daño (usa player_death.png)."""
+    """Effect played when taking damage (uses player_death.png)."""
 
     _death_cache = None
 
@@ -174,19 +181,19 @@ class PlayerDeath(AnimatedEffect):
         if os.path.exists(path):
             base_img = pygame.image.load(path).convert_alpha()
             base_img = pygame.transform.scale(base_img, size)
-            # Generar frames con alpha decreciente para efecto de desvanecimiento
+            # Generate frames with decreasing alpha for a fade-out effect
             for i in range(count):
                 frame = base_img.copy()
                 alpha = 255 - (i * 255 // count)
                 frame.set_alpha(alpha)
-                # Escalar ligeramente hacia afuera (expansión)
+                # Scale slightly outward (expansion)
                 scale_factor = 1.0 + (i * 0.15)
                 new_w = int(size[0] * scale_factor)
                 new_h = int(size[1] * scale_factor)
                 frame = pygame.transform.scale(frame, (new_w, new_h))
                 frames.append(frame)
         else:
-            # Fallback procedural
+            # Procedural fallback
             for i in range(count):
                 surf = pygame.Surface(size, pygame.SRCALPHA)
                 alpha = 255 - (i * 255 // count)

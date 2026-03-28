@@ -1,4 +1,4 @@
-# game.py — Clase principal del juego
+# game.py - Main game class
 
 import os
 import pygame
@@ -18,6 +18,7 @@ from entities import Player, Enemy, Projectile, EnemyProjectile
 from effects import Explosion, MuzzleFlash, PlayerDeath
 
 
+# Encapsulation: GameState restricts valid runtime phases to a fixed enum set.
 class GameState(Enum):
     MENU = "menu"
     RUNNING = "running"
@@ -25,8 +26,11 @@ class GameState(Enum):
     LOST = "lost"
 
 
+# Encapsulation: Game keeps runtime data in internal attributes
+# (_state, _score, _enemies, etc.) and coordinates behavior through helper methods.
+# Composition with inheritance: it orchestrates objects that inherit from Entity/AnimatedEffect.
 class Game:
-    """Clase principal que maneja el loop del juego."""
+    """Main class that controls the game loop."""
 
     def __init__(self):
         pygame.init()
@@ -37,7 +41,7 @@ class Game:
         self._score = 0
         self._lives = PLAYER_LIVES
 
-        # Entidades
+        # Entities
         self._player = Player(
             np.array([SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2, PLAYER_START_Y])
         )
@@ -47,7 +51,7 @@ class Game:
         self._effects = []
         self._enemy_direction = 1.0
 
-        # Invencibilidad
+        # Invincibility
         self._invincible = False
         self._invincible_start = 0
 
@@ -60,7 +64,7 @@ class Game:
                 self._background, (SCREEN_WIDTH, SCREEN_HEIGHT)
             )
 
-        # Icono de vida
+        # Life icon
         self._live_icon = None
         live_path = os.path.join(ASSETS_DIR, "live.png")
         if os.path.exists(live_path):
@@ -72,7 +76,7 @@ class Game:
     # ==================== SPAWN ====================
 
     def _spawn_enemies(self):
-        """Genera la grilla de enemigos usando NumPy."""
+        """Generate the enemy grid using NumPy."""
         self._enemies.clear()
 
         usable_width = SCREEN_WIDTH - ENEMY_MARGIN_LEFT - ENEMY_MARGIN_RIGHT
@@ -107,18 +111,18 @@ class Game:
         if self._state != GameState.RUNNING:
             return
 
-        # Invencibilidad
+        # Invincibility
         if self._invincible:
             elapsed = pygame.time.get_ticks() - self._invincible_start
             if elapsed >= PLAYER_INVINCIBLE_TIME:
                 self._invincible = False
 
-        # Input del jugador
+        # Player input
         keys = pygame.key.get_pressed()
         self._player.handle_input(keys)
         self._player.update()
 
-        # Disparo del jugador
+        # Player shooting
         if keys[pygame.K_SPACE]:
             proj = self._player.shoot()
             if proj is not None:
@@ -129,41 +133,41 @@ class Game:
                 ])
                 self._effects.append(MuzzleFlash(flash_pos))
 
-        # Actualizar proyectiles del jugador
+        # Update player projectiles
         for proj in self._projectiles:
             proj.update()
         self._projectiles = [p for p in self._projectiles if p.active]
 
-        # Disparo de enemigos
+        # Enemy shooting
         self._enemy_shoot()
 
-        # Actualizar proyectiles enemigos
+        # Update enemy projectiles
         for proj in self._enemy_projectiles:
             proj.update()
         self._enemy_projectiles = [p for p in self._enemy_projectiles if p.active]
 
-        # Mover enemigos
+        # Move enemies
         self._move_enemies()
 
-        # Colisiones
+        # Collisions
         self._check_collisions()
         self._check_player_hit()
 
-        # Actualizar efectos
+        # Update effects
         for effect in self._effects:
             effect.update()
         self._effects = [e for e in self._effects if e.active]
 
-        # Verificar estado del juego
+        # Check game state
         self._check_game_state()
 
     def _enemy_shoot(self):
-        """Enemigos disparan aleatoriamente usando NumPy."""
+        """Enemies shoot randomly using NumPy."""
         active_enemies = [e for e in self._enemies if e.active]
         if not active_enemies:
             return
 
-        # Generar probabilidades con NumPy
+        # Generate random probabilities with NumPy
         random_values = np.random.random(len(active_enemies))
 
         for i, enemy in enumerate(active_enemies):
@@ -175,7 +179,7 @@ class Game:
                 self._enemy_projectiles.append(EnemyProjectile(proj_pos))
 
     def _move_enemies(self):
-        """Mueve los enemigos horizontalmente y los baja al tocar un borde."""
+        """Move enemies horizontally and drop them when they hit a border."""
         active_enemies = [e for e in self._enemies if e.active]
         if not active_enemies:
             return
@@ -198,7 +202,7 @@ class Game:
                 ])
 
     def _check_collisions(self):
-        """Detecta colisiones entre proyectiles del jugador y enemigos."""
+        """Detect collisions between player projectiles and enemies."""
         for proj in self._projectiles:
             if not proj.active:
                 continue
@@ -216,7 +220,7 @@ class Game:
                     self._effects.append(Explosion(center))
 
     def _check_player_hit(self):
-        """Detecta colisiones entre proyectiles enemigos y el jugador."""
+        """Detect collisions between enemy projectiles and the player."""
         if self._invincible:
             return
 
@@ -228,7 +232,7 @@ class Game:
                 proj.deactivate()
                 self._lives -= 1
 
-                # Efecto de muerte del jugador
+                # Player death effect
                 center = np.array([
                     self._player.position[0] + PLAYER_WIDTH / 2,
                     self._player.position[1] + PLAYER_HEIGHT / 2
@@ -238,13 +242,13 @@ class Game:
                 if self._lives <= 0:
                     self._state = GameState.LOST
                 else:
-                    # Activar invencibilidad temporal
+                    # Activate temporary invincibility
                     self._invincible = True
                     self._invincible_start = pygame.time.get_ticks()
                 break
 
     def _check_game_state(self):
-        """Verifica si el jugador ganó o perdió."""
+        """Check if the player won or lost."""
         active_enemies = [e for e in self._enemies if e.active]
 
         if not active_enemies:
@@ -284,37 +288,37 @@ class Game:
         title_rect = title.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
         self._screen.blit(title, title_rect)
 
-        start = font_small.render("Presiona ENTER para jugar", True, GREEN)
+        start = font_small.render("Press ENTER to play", True, GREEN)
         start_rect = start.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20))
         self._screen.blit(start, start_rect)
 
     def _draw_playing(self):
         self._draw_background()
 
-        # Enemigos
+        # Enemies
         for enemy in self._enemies:
             if enemy.active:
                 enemy.draw(self._screen)
 
-        # Proyectiles del jugador
+        # Player projectiles
         for proj in self._projectiles:
             if proj.active:
                 proj.draw(self._screen)
 
-        # Proyectiles enemigos
+        # Enemy projectiles
         for proj in self._enemy_projectiles:
             if proj.active:
                 proj.draw(self._screen)
 
-        # Jugador (parpadea si es invencible)
+        # Player (blinks while invincible)
         if self._invincible:
-            # Parpadeo: visible cada 100ms
+            # Blink: visible every 100ms
             if (pygame.time.get_ticks() // 100) % 2 == 0:
                 self._player.draw(self._screen)
         else:
             self._player.draw(self._screen)
 
-        # Efectos
+        # Effects
         for effect in self._effects:
             effect.draw(self._screen)
 
@@ -322,18 +326,18 @@ class Game:
         self._draw_hud()
 
     def _draw_hud(self):
-        """Dibuja puntaje y vidas."""
+        """Draw score and lives."""
         font = pygame.font.Font(None, 36)
-        score_text = font.render(f"Puntaje: {self._score}", True, WHITE)
+        score_text = font.render(f"Score: {self._score}", True, WHITE)
         self._screen.blit(score_text, (10, 10))
 
-        # Vidas
+        # Lives
         if self._live_icon:
             for i in range(self._lives):
                 x = SCREEN_WIDTH - (LIVE_ICON_SIZE[0] + LIVE_ICON_MARGIN) * (i + 1)
                 self._screen.blit(self._live_icon, (x, 10))
         else:
-            lives_text = font.render(f"Vidas: {self._lives}", True, RED)
+            lives_text = font.render(f"Lives: {self._lives}", True, RED)
             self._screen.blit(lives_text, (SCREEN_WIDTH - 150, 10))
 
     def _draw_game_over(self):
@@ -351,21 +355,21 @@ class Game:
         font_small = pygame.font.Font(None, 36)
 
         if self._state == GameState.WON:
-            text = "¡GANASTE!"
+            text = "YOU WON!"
             color = GREEN
         else:
-            text = "PERDISTE"
+            text = "YOU LOST"
             color = RED
 
         title = font_large.render(text, True, color)
         title_rect = title.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
         self._screen.blit(title, title_rect)
 
-        score = font_small.render(f"Puntaje final: {self._score}", True, WHITE)
+        score = font_small.render(f"Final score: {self._score}", True, WHITE)
         score_rect = score.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 10))
         self._screen.blit(score, score_rect)
 
-        restart = font_small.render("Presiona R para reiniciar", True, WHITE)
+        restart = font_small.render("Press R to restart", True, WHITE)
         restart_rect = restart.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
         self._screen.blit(restart, restart_rect)
 
