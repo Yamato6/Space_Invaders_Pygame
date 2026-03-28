@@ -193,22 +193,8 @@ AnimatedEffect
 \- PlayerDeath
 ```
 
-## 9. Analysis Findings
-Relevant findings after reviewing all .py files:
-- The previous documentation was outdated (it did not include effects.py, enemy projectiles, lives, and invincibility).
-- In _restart of game.py, class flags _sprite_loaded are assigned for Enemy and Projectile, but those classes do not currently use that mechanism.
-  - It does not break the game because Python allows dynamic class attributes.
-  - It is redundant code and can be removed for cleanup.
-
-## 10. How to Run
+## 10. Como ejecutar
 
 ```bash
 python main.py
 ```
-
-## 11. Technical Improvement Ideas
-- Tune progressive difficulty (enemy speed and shoot chance per wave).
-- Add waves (new spawn after partial victory).
-- Add sound (shoot, hit, game over).
-- Split UI/HUD into a dedicated module.
-- Add basic tests for pure logic (collisions and state transitions).
