@@ -164,7 +164,7 @@ class Game:
     def _enemy_shoot(self):
         """Enemies shoot randomly using NumPy."""
         active_enemies = [e for e in self._enemies if e.active]
-        if not active_enemies:
+        if len(active_enemies) == 0:
             return
 
         # Generate random probabilities with NumPy
@@ -181,7 +181,7 @@ class Game:
     def _move_enemies(self):
         """Move enemies horizontally and drop them when they hit a border."""
         active_enemies = [e for e in self._enemies if e.active]
-        if not active_enemies:
+        if len(active_enemies) == 0:
             return
 
         should_drop = False
@@ -204,10 +204,10 @@ class Game:
     def _check_collisions(self):
         """Detect collisions between player projectiles and enemies."""
         for proj in self._projectiles:
-            if not proj.active:
+            if proj.active is False:
                 continue
             for enemy in self._enemies:
-                if not enemy.active:
+                if enemy.active is False:
                     continue
                 if proj.get_rect().colliderect(enemy.get_rect()):
                     proj.deactivate()
@@ -226,7 +226,7 @@ class Game:
 
         player_rect = self._player.get_rect()
         for proj in self._enemy_projectiles:
-            if not proj.active:
+            if proj.active is False:
                 continue
             if proj.get_rect().colliderect(player_rect):
                 proj.deactivate()
@@ -251,7 +251,7 @@ class Game:
         """Check if the player won or lost."""
         active_enemies = [e for e in self._enemies if e.active]
 
-        if not active_enemies:
+        if len(active_enemies) == 0:
             self._state = GameState.WON
             return
 

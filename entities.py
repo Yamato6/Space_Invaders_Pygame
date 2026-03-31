@@ -169,7 +169,7 @@ class EnemyProjectile(Entity):
         super().__init__(position, ENEMY_PROJECTILE_WIDTH, ENEMY_PROJECTILE_HEIGHT)
         self._velocity = np.array([0.0, ENEMY_PROJECTILE_SPEED])
 
-        if not EnemyProjectile._sprite_loaded:
+        if EnemyProjectile._sprite_loaded is False:
             path = os.path.join(ASSETS_DIR, "enemy_proyectile.png")
             if os.path.exists(path):
                 img = pygame.image.load(path).convert_alpha()
@@ -186,7 +186,7 @@ class EnemyProjectile(Entity):
             self.deactivate()
 
     def draw(self, surface: pygame.Surface):
-        if not self._active:
+        if self._active is False:
             return
         if self._sprite:
             surface.blit(self._sprite, (int(self._position[0]), int(self._position[1])))

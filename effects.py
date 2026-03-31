@@ -57,7 +57,7 @@ class AnimatedEffect:
         return self._active
 
     def update(self):
-        if not self._active:
+        if self._active is False:
             return
         elapsed = pygame.time.get_ticks() - self._start_time
         self._current_frame = elapsed // self._frame_duration
@@ -65,7 +65,7 @@ class AnimatedEffect:
             self._active = False
 
     def draw(self, surface: pygame.Surface):
-        if not self._active or self._current_frame >= len(self._frames):
+        if self._active is False or self._current_frame >= len(self._frames):
             return
         frame = self._frames[self._current_frame]
         x = int(self._position[0] - self._size[0] / 2)
