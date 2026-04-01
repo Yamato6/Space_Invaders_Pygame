@@ -247,18 +247,37 @@ class Game:
                     self._invincible_start = pygame.time.get_ticks()
                 break
 
+    def _scan_enemies_recursive(self, enemies, index=0):
+        """Recursively scan enemies to support win/lose validation.
+
+        Base case: when index reaches the list end, there are no more enemies to process.
+        Recursive case: process one enemy, then recurse with the next index.
+        Returns (active_count, reached_lose_line).
+        """
+        if index >= len(enemies):
+            return 0, False
+
+        active_count, reached_lose_line = self._scan_enemies_recursive(enemies, index + 1)
+        enemy = enemies[index]
+
+        if enemy.active:
+            active_count += 1
+            if enemy.position[1] + ENEMY_HEIGHT >= ENEMY_LOSE_Y:
+                reached_lose_line = True
+
+        return active_count, reached_lose_line
+
     def _check_game_state(self):
         """Check if the player won or lost."""
-        active_enemies = [e for e in self._enemies if e.active]
+        active_count, reached_lose_line = self._scan_enemies_recursive(self._enemies)
 
-        if len(active_enemies) == 0:
+        if active_count == 0:
             self._state = GameState.WON
             return
 
-        for enemy in active_enemies:
-            if enemy.position[1] + ENEMY_HEIGHT >= ENEMY_LOSE_Y:
-                self._state = GameState.LOST
-                return
+        if reached_lose_line:
+            self._state = GameState.LOST
+            return
 
     # ==================== DRAW ====================
 

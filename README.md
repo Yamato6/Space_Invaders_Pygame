@@ -77,7 +77,7 @@ Functions:
 - Calls game.run() to start the main loop.
 
 Execution behavior:
-- Protected by if __name__ == "__main__" so the game launches only when file is run directly.
+- Calls main() directly at module load.
 
 ### 4.3 entities.py
 
@@ -361,8 +361,11 @@ Main orchestrator class.
 - Else: activates temporary invincibility and start timestamp.
 
 9. _check_game_state()
-- If no active enemies remain: sets WON.
-- If any enemy reaches ENEMY_LOSE_Y threshold: sets LOST.
+- Uses _scan_enemies_recursive(enemies, index=0) to evaluate enemy state recursively.
+- Base case: index reaches the enemy list length.
+- Recursive case: processes one enemy and calls itself for index + 1.
+- If active enemy count is 0: sets WON.
+- If any active enemy reaches ENEMY_LOSE_Y threshold: sets LOST.
 
 10. _draw()
 - Dispatches rendering by state:
