@@ -73,7 +73,7 @@ class Game:
 
         self._spawn_enemies()
 
-    # ==================== SPAWN ====================
+    # SPAWN 
 
     def _spawn_enemies(self):
         """Generate the enemy grid using NumPy."""
@@ -92,7 +92,7 @@ class Game:
                 pos = np.array([col, row])
                 self._enemies.append(Enemy(pos))
 
-    # ==================== EVENTS ====================
+    #  EVENTS
 
     def _handle_events(self):
         for event in pygame.event.get():
@@ -105,7 +105,7 @@ class Game:
                     self._restart()
         return True
 
-    # ==================== UPDATE ====================
+    # UPDATE 
 
     def _update(self):
         if self._state != GameState.RUNNING:
@@ -279,7 +279,7 @@ class Game:
             self._state = GameState.LOST
             return
 
-    # ==================== DRAW ====================
+    # DRAW 
 
     def _draw(self):
         if self._state == GameState.MENU:
@@ -392,7 +392,7 @@ class Game:
         restart_rect = restart.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
         self._screen.blit(restart, restart_rect)
 
-    # ==================== RESTART ====================
+    # RESTART 
 
     def _restart(self):
         self._state = GameState.RUNNING
@@ -411,7 +411,7 @@ class Game:
         Projectile._sprite_loaded = False
         EnemyProjectile._sprite_loaded = False
 
-    # ==================== MAIN LOOP ====================
+    # MAIN LOOP 
 
     def run(self):
         running = True
