@@ -1,5 +1,15 @@
 # settings.py — Constantes globales del juego
 import os
+import sys
+
+
+def resource_path(*parts):
+	"""Return absolute resource path for dev mode and PyInstaller bundles."""
+	if hasattr(sys, "_MEIPASS"):
+		base_path = sys._MEIPASS
+	else:
+		base_path = os.path.dirname(os.path.abspath(__file__))
+	return os.path.join(base_path, *parts)
 
 # --- Pantalla ---
 SCREEN_WIDTH = 800
@@ -16,7 +26,7 @@ BLUE = (0, 100, 255)
 YELLOW = (255, 255, 0)
 
 # --- Assets ---
-ASSETS_DIR = os.path.join(os.path.dirname(__file__), "assets")
+ASSETS_DIR = resource_path("assets")
 
 # --- Jugador ---
 PLAYER_WIDTH = 50
@@ -55,5 +65,5 @@ LIVE_ICON_MARGIN = 5
 # --- Proyectiles enemigos ---
 ENEMY_PROJECTILE_WIDTH = 12
 ENEMY_PROJECTILE_HEIGHT = 18
-ENEMY_PROJECTILE_SPEED = 3.0       # era 4.0
-ENEMY_SHOOT_CHANCE = 0.0008        # era 0.002
+ENEMY_PROJECTILE_SPEED = 3.0       
+ENEMY_SHOOT_CHANCE = 0.0008        

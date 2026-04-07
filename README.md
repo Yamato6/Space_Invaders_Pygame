@@ -32,6 +32,22 @@ Run the game:
 python main.py
 ```
 
+Build Windows executable (.exe) with assets:
+
+```bash
+py -m pip install pyinstaller
+py -m PyInstaller --noconfirm --clean --onefile --windowed --name SpaceInvaders --add-data "assets;assets" main.py
+```
+
+Automated build script:
+
+```bash
+build.bat
+```
+
+Output executable:
+- dist/SpaceInvaders.exe
+
 ## 3. Project Structure
 
 ```text
